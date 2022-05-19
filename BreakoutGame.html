@@ -1,0 +1,189 @@
+<!DOCTYPE html><html><head>
+  <script src="./libraries/p5.min.js"></script>
+  <script src="./libraries/p5.dom.min.js"></script>
+  <script src="./libraries/p5.sound.min.js"></script>
+  <script src="./libraries/p5.play.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <meta charset="utf-8">
+
+</head>
+<script src="./libraries/p5.js"></script>
+
+<body>
+
+<script>
+
+var ball,ballImg;
+
+var score=0
+var lives=3
+var gameState=0
+
+var SERVE=0
+var PLAY=1
+var END=2
+
+var paddle;
+var bricks;
+var edges;
+var floor
+
+var bp, bpImg;
+
+var BackgroundMusic
+
+
+function preload(){
+
+  bricks = new Group()
+
+  ballImg = loadImage("./Gizmo sprites/gizmo-5.png")
+  bpImg = loadImage("./Gizmo sprites/portal-blue-down.png")
+  BackgroundMusic = loadSound("./Music/Puzzle.mp3")
+
+}
+
+function setup() {
+  createCanvas(900,600);
+
+  ball = createSprite(450,500,10,10)
+  ball.addImage(ballImg)
+  ball.scale=0.2
+
+  paddle = createSprite(450,590,100,10)
+  paddle.shapeColor="lightblue"
+
+  bp = createSprite(450,350,10,10)
+  bp.addImage(bpImg)
+  bp.scale=0.2
+
+  floor = createSprite(450,600,900,1)
+
+  edges = createEdgeSprites()
+
+  BackgroundMusic.loop()
+  BackgroundMusic.setVolume(0.2)
+
+}
+
+
+
+
+
+
+function draw() 
+{
+  background(51);
+
+  textSize(20);
+  text("Score:"+score,40,25);
+  text("Lives:"+lives,40,45);
+
+  if(gameState===SERVE){
+    bp.visible=false
+    text("Press Space to start", 380,300)
+    ball.velocityX =0
+    ball.velocityY =0
+    ball.x = 450;
+    ball.y = 500;
+
+    if(keyDown("SPACE")){
+
+      ball.velocityX=6
+      ball.velocityY=10
+
+      if(gameState===SERVE){
+        ball.velocityY = -7
+    ball.velocityX = -7
+      gameState=PLAY
+      }
+
+  }
+  }
+
+
+  if(gameState===PLAY){
+
+    bp.visible=false
+
+    paddle.x = World.mouseX
+
+  if(paddle.x<50){
+    paddle.x = 50
+  }
+
+  if(paddle.x>850){
+    paddle.x=850
+  }
+
+  ball.bounceOff(edges)
+  ball.bounceOff(paddle)
+  ball.bounceOff(bricks, brickHit)
+
+  if(!bricks[0]){
+    ball.velocityX = 0
+    ball.velocityY = 0
+    text("your decent", 350,200)
+  }
+
+  if(score==350){
+    bp.visible=true
+  }
+  if(ball.isTouching(bp)){
+    window.location="Cliff-Hanger.html"
+  }
+
+  if(ball.isTouching(floor)){
+    lifeover()
+  }
+
+}
+
+if(gameState===END){
+    text("trash",380,250)
+    ball.remove()
+  }
+  
+
+createBrickRow(65,"red")
+createBrickRow(65+29,"orange")
+createBrickRow(65+29+29,"yellow")
+createBrickRow(65+29+29+29,"green")
+createBrickRow(65+29+29+29+29,"blue")
+createBrickRow(65+29+29+29+29+29,"purple")
+
+
+  drawSprites()
+  
+}
+
+function createBrickRow(y, color){
+  for(c=0; c<14;c++){
+    var brick = createSprite(65+54*c,y,50,25)
+    brick.shapeColor = color;
+    bricks.add(brick)
+  }
+}
+
+
+function brickHit(ball, brick){
+  brick.remove();
+  score = score+5
+}
+
+function lifeover(){
+  lives = lives - 1;
+  if(lives>=1){
+    gameState=SERVE
+  }
+  else{
+    gameState=END
+  }
+}
+
+
+
+
+</script>
+
+</body></html>
